@@ -5,13 +5,13 @@ require "dream/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "dreamify"
-  spec.version       = Dream::VERSION
+  spec.version       = Dreamify::VERSION
   spec.authors       = ["Chris Allen"]
   spec.email         = ["chris@apaxsoftware.com"]
 
   spec.summary       = "This is the summary"
   spec.description   = "This is the description"
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage      = "http://apaxsoftware.com"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|

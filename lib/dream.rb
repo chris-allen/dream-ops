@@ -1,5 +1,5 @@
 
-module Dream
+module Dreamify
 
   require_relative "dream/version"
   require_relative "dream/errors"

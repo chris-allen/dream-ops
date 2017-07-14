@@ -4,7 +4,7 @@ require "berkshelf"
 # require_relative "cookbook_generator"
 # require_relative "commands/shelf"
 
-module Dream
+module Dreamify
   class Cli < Thor
     # This is the main entry point for the CLI. It exposes the method {#execute!} to
     # start the CLI.
@@ -22,15 +22,15 @@ module Dream
         $stdout = @stdout
         $stderr = @stderr
 
-        Dream::Cli.start(@argv)
+        Dreamify::Cli.start(@argv)
         @kernel.exit(0)
-      rescue Dream::DreamError => e
-        Dream.ui.error e
-        Dream.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
+      rescue Dreamify::DreamifyError => e
+        Dreamify.ui.error e
+        Dreamify.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
         @kernel.exit(e.status_code)
       rescue Ridley::Errors::RidleyError => e
-        Dream.ui.error "#{e.class} #{e}"
-        Dream.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
+        Dreamify.ui.error "#{e.class} #{e}"
+        Dreamify.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
         @kernel.exit(47)
       end
     end
@@ -47,7 +47,7 @@ module Dream
           end
         else
           super
-          Dream.formatter.cleanup_hook unless config[:current_command].name == "help"
+          Dreamify.formatter.cleanup_hook unless config[:current_command].name == "help"
         end
       end
     end
@@ -60,19 +60,19 @@ module Dream
       #     raise ConfigNotFound.new(:berkshelf, @options[:config])
       #   end
 
-      #   Dream.config = Dream::Config.from_file(@options[:config])
+      #   Dreamify.config = Dreamify::Config.from_file(@options[:config])
       # end
 
       if @options[:debug]
         ENV["BERKSHELF_DEBUG"] = "true"
-        Dream.logger.level = ::Logger::DEBUG
+        Dreamify.logger.level = ::Logger::DEBUG
       end
 
       if @options[:quiet]
-        Dream.ui.mute!
+        Dreamify.ui.mute!
       end
 
-      Dream.set_format @options[:format]
+      Dreamify.set_format @options[:format]
       @options = options.dup # unfreeze frozen options Hash from Thor
     end
 
@@ -86,7 +86,7 @@ module Dream
 
     class_option :config,
       type: :string,
-      desc: "Path to Dream configuration to use.",
+      desc: "Path to Dreamify configuration to use.",
       aliases: "-c",
       banner: "PATH"
     class_option :format,
@@ -108,7 +108,7 @@ module Dream
 
     desc "version", "Display version"
     def version
-      Dream.formatter.version
+      Dreamify.formatter.version
     end
 
     desc "project", "Creates project"
@@ -116,7 +116,7 @@ module Dream
       "heyoo"
     end
 
-    tasks["cookbook"].options = Dream::CookbookGenerator.class_options
+    tasks["cookbook"].options = Dreamify::CookbookGenerator.class_options
 
     private
 
@@ -127,7 +127,7 @@ module Dream
       #
     def print_list(cookbooks)
       Array(cookbooks).sort.each do |cookbook|
-        Dream.formatter.msg "  * #{cookbook.cookbook_name} (#{cookbook.version})"
+        Dreamify.formatter.msg "  * #{cookbook.cookbook_name} (#{cookbook.version})"
       end
     end
   end

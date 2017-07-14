@@ -1,5 +1,5 @@
-module Dream
-  class DreamError < StandardError
+module Dreamify
+  class DreamifyError < StandardError
     class << self
       # @param [Integer] code
       def set_status_code(code)
@@ -11,13 +11,13 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class DeprecatedError < DreamError; set_status_code(10); end
-  class InternalError < DreamError; set_status_code(99); end
+  class DeprecatedError < DreamifyError; set_status_code(10); end
+  class InternalError < DreamifyError; set_status_code(99); end
   class ArgumentError < InternalError; end
   class AbstractFunction < InternalError; end
   class ConfigurationError < InternalError; end
 
-  class BerksfileNotFound < DreamError
+  class BerksfileNotFound < DreamifyError
     set_status_code(100)
 
     # @param [#to_s] filepath
@@ -33,7 +33,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class CookbookNotFound < DreamError
+  class CookbookNotFound < DreamifyError
     set_status_code(103)
 
     def initialize(name, version, location)
@@ -53,7 +53,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class DuplicateDependencyDefined < DreamError
+  class DuplicateDependencyDefined < DreamifyError
     set_status_code(105)
 
     def initialize(name)
@@ -70,7 +70,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class NoSolutionError < DreamError
+  class NoSolutionError < DreamifyError
     set_status_code(106)
 
     attr_reader :demands
@@ -89,9 +89,9 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class CookbookSyntaxError < DreamError; set_status_code(107); end
-  class ConstraintNotSatisfied < DreamError; set_status_code(111); end
-  class BerksfileReadError < DreamError
+  class CookbookSyntaxError < DreamifyError; set_status_code(107); end
+  class ConstraintNotSatisfied < DreamifyError; set_status_code(111); end
+  class BerksfileReadError < DreamifyError
     set_status_code(113)
 
     # @param [#set_status_code] original_error
@@ -121,7 +121,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class MismatchedCookbookName < DreamError
+  class MismatchedCookbookName < DreamifyError
     set_status_code(114)
 
     # @param [Dependency] dependency
@@ -151,7 +151,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class InvalidConfiguration < DreamError
+  class InvalidConfiguration < DreamifyError
     set_status_code(115)
 
     def initialize(errors)
@@ -172,7 +172,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class InsufficientPrivledges < DreamError
+  class InsufficientPrivledges < DreamifyError
     set_status_code(119)
 
     def initialize(path)
@@ -188,7 +188,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class DependencyNotFound < DreamError
+  class DependencyNotFound < DreamifyError
     set_status_code(120)
 
     # @param [String, Array<String>] names
@@ -218,7 +218,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class CommunitySiteError < DreamError
+  class CommunitySiteError < DreamifyError
     set_status_code(123)
 
     def initialize(uri, message)
@@ -234,7 +234,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class CookbookValidationFailure < DreamError
+  class CookbookValidationFailure < DreamifyError
     set_status_code(124)
 
     # @param [Location] location
@@ -253,7 +253,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class UploadFailure < DreamError; end
+  class UploadFailure < DreamifyError; end
   class FrozenCookbook < UploadFailure
     set_status_code(126)
 
@@ -271,7 +271,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class OutdatedDependency < DreamError
+  class OutdatedDependency < DreamifyError
     set_status_code(128)
 
     # @param [Dependency] locked_dependency
@@ -284,7 +284,7 @@ module Dream
     end
 
     def to_s
-      "Dream could not find compatible versions for cookbook '#{@dependency.name}':\n" +
+      "Dreamify could not find compatible versions for cookbook '#{@dependency.name}':\n" +
         "  In Berksfile:\n" +
         "    #{@dependency.name} (#{@dependency.version_constraint})\n\n" +
         "  In Berksfile.lock:\n" +
@@ -296,7 +296,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class EnvironmentNotFound < DreamError
+  class EnvironmentNotFound < DreamifyError
     set_status_code(129)
 
     def initialize(environment_name)
@@ -310,7 +310,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class ChefConnectionError < DreamError
+  class ChefConnectionError < DreamifyError
     set_status_code(130)
 
     def to_s
@@ -318,7 +318,7 @@ module Dream
     end
   end
 
-  class UnknownCompressionType < DreamError
+  class UnknownCompressionType < DreamifyError
     set_status_code(131)
 
     def initialize(target, destination)
@@ -340,7 +340,7 @@ module Dream
   #   the cookbook that failed validation
   # @param [Array<#to_s>] files
   #   the list of files that were not valid
-  class InvalidCookbookFiles < DreamError
+  class InvalidCookbookFiles < DreamifyError
     set_status_code(132)
 
     def initialize(cookbook, files)
@@ -361,7 +361,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class LicenseNotFound < DreamError
+  class LicenseNotFound < DreamifyError
     set_status_code(134)
 
     attr_reader :license
@@ -380,11 +380,11 @@ module Dream
 
   # Raised when a cookbook or its recipes contain a space or invalid
   # character in the path.
-  class ConfigNotFound < DreamError
+  class ConfigNotFound < DreamifyError
     set_status_code(135)
 
     # @param [String] type
-    #   the type of config that was not found (Dream, Chef, etc)
+    #   the type of config that was not found (Dreamify, Chef, etc)
     # @param [#to_s] path
     #   the path to the specified Chef config that did not exist
     def initialize(type, path)
@@ -399,7 +399,7 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class LockfileParserError < DreamError
+  class LockfileParserError < DreamifyError
     set_status_code(136)
 
     # @param [String] lockfile
@@ -411,14 +411,14 @@ module Dream
     end
 
     def to_s
-      "Error reading the Dream lockfile:\n\n" \
+      "Error reading the Dreamify lockfile:\n\n" \
       "  #{@original.class}: #{@original.message}"
     end
 
     alias_method :message, :to_s
   end
 
-  class InvalidSourceURI < DreamError
+  class InvalidSourceURI < DreamifyError
     set_status_code(137)
 
     def initialize(url, reason = nil)
@@ -427,7 +427,7 @@ module Dream
     end
 
     def to_s
-      msg =  "'#{@url}' is not a valid Dream source URI."
+      msg =  "'#{@url}' is not a valid Dreamify source URI."
       msg << " #{@reason}." unless @reason.nil?
       msg
     end
@@ -435,8 +435,8 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class DuplicateDemand < DreamError; set_status_code(138); end
-  class LockfileNotFound < DreamError
+  class DuplicateDemand < DreamifyError; set_status_code(138); end
+  class LockfileNotFound < DreamifyError
     set_status_code(140)
 
     def to_s
@@ -444,7 +444,7 @@ module Dream
     end
   end
 
-  class NotACookbook < DreamError
+  class NotACookbook < DreamifyError
     set_status_code(141)
 
     # @param [String] path
@@ -461,9 +461,9 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class PackageError < DreamError; set_status_code(143); end
+  class PackageError < DreamifyError; set_status_code(143); end
 
-  class LockfileOutOfSync < DreamError
+  class LockfileOutOfSync < DreamifyError
     set_status_code(144)
 
     def to_s
@@ -471,7 +471,7 @@ module Dream
     end
   end
 
-  class DependencyNotInstalled < DreamError
+  class DependencyNotInstalled < DreamifyError
     set_status_code(145)
 
     def initialize(dependency)
@@ -487,20 +487,20 @@ module Dream
     alias_method :message, :to_s
   end
 
-  class NoAPISourcesDefined < DreamError
+  class NoAPISourcesDefined < DreamifyError
     set_status_code(146)
 
     def to_s
       "Your Berksfile does not define any API sources! You must define " \
       "at least one source in order to download cookbooks. To add the " \
-      "default Dream API server, add the following code to the top of " \
+      "default Dreamify API server, add the following code to the top of " \
       "your Berksfile:" \
       "\n\n" \
       "    source 'https://supermarket.chef.io'"
     end
   end
 
-  class GraphvizNotInstalled < DreamError
+  class GraphvizNotInstalled < DreamifyError
     set_status_code(147)
 
     def to_s
@@ -511,7 +511,7 @@ module Dream
     end
   end
 
-  class GraphvizCommandFailed < DreamError
+  class GraphvizCommandFailed < DreamifyError
     set_status_code(148)
 
     def initialize(command, output)
@@ -552,7 +552,7 @@ module Dream
 
   # Git errors
   # ------------------------------
-  class GitError < DreamError; set_status_code(400); end
+  class GitError < DreamifyError; set_status_code(400); end
 
   class GitNotInstalled < GitError
     def initialize

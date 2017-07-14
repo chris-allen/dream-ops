@@ -1,4 +1,4 @@
-require "berkshelf"
+require "dreamify"
 # require_relative "config"
 # require_relative "init_generator"
 # require_relative "cookbook_generator"
@@ -28,10 +28,10 @@ module Dreamify
         Dreamify.ui.error e
         Dreamify.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
         @kernel.exit(e.status_code)
-      rescue Ridley::Errors::RidleyError => e
-        Dreamify.ui.error "#{e.class} #{e}"
-        Dreamify.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
-        @kernel.exit(47)
+      # rescue Ridley::Errors::RidleyError => e
+      #   Dreamify.ui.error "#{e.class} #{e}"
+      #   Dreamify.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
+      #   @kernel.exit(47)
       end
     end
 
@@ -113,10 +113,10 @@ module Dreamify
 
     desc "project", "Creates project"
     def project
-      "heyoo"
+      puts "...to be implemented at a later date =)"
     end
 
-    tasks["cookbook"].options = Dreamify::CookbookGenerator.class_options
+    # tasks["cookbook"].options = Dreamify::CookbookGenerator.class_options
 
     private
 

@@ -8,6 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Dreamify::VERSION
   spec.authors       = ["Chris Allen"]
   spec.email         = ["chris@apaxsoftware.com"]
+  spec.required_ruby_version     = ">= 2.3.1"
+  spec.required_rubygems_version = ">= 2.0.0"
 
   spec.summary       = "This is the summary"
   spec.description   = "This is the description"
@@ -26,4 +28,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "berkshelf", "~> 6.2"
   spec.add_dependency "thor",      "~> 0.19", "< 0.19.2"
+  spec.add_dependency "chef",      "~> 12.7"
 end

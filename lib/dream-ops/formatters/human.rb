@@ -1,16 +1,16 @@
-module Dreamify
+module DreamOps
   class HumanFormatter < BaseFormatter
-    # Output the version of Dreamify
+    # Output the version of DreamOps
     def version
-      Dreamify.ui.info Dreamify::VERSION
+      DreamOps.ui.info DreamOps::VERSION
     end
 
-    # @param [Dreamify::Dependency] dependency
+    # @param [DreamOps::Dependency] dependency
     def fetch(dependency)
-      Dreamify.ui.info "Fetching '#{dependency.name}' from #{dependency.location}"
+      DreamOps.ui.info "Fetching '#{dependency.name}' from #{dependency.location}"
     end
 
-    # Output a Cookbook installation message using {Dreamify.ui}
+    # Output a Cookbook installation message using {DreamOps.ui}
     #
     # @param [Source] source
     #   the source the dependency is being downloaded from
@@ -26,45 +26,45 @@ module Dreamify
         message << " ([#{cookbook.location_type}] #{cookbook.location_path})"
       end
 
-      Dreamify.ui.info(message)
+      DreamOps.ui.info(message)
     end
 
-    # Output a Cookbook use message using {Dreamify.ui}
+    # Output a Cookbook use message using {DreamOps.ui}
     #
     # @param [Dependency] dependency
     def use(dependency)
       message =  "Using #{dependency.name} (#{dependency.locked_version})"
       message << " from #{dependency.location}" if dependency.location
-      Dreamify.ui.info(message)
+      DreamOps.ui.info(message)
     end
 
-    # Output a Cookbook upload message using {Dreamify.ui}
+    # Output a Cookbook upload message using {DreamOps.ui}
     #
-    # @param [Dreamify::CachedCookbook] cookbook
+    # @param [DreamOps::CachedCookbook] cookbook
     # @param [Ridley::Connection] conn
     def uploaded(cookbook, conn)
-      Dreamify.ui.info "Uploaded #{cookbook.cookbook_name} (#{cookbook.version}) to: '#{conn.server_url}'"
+      DreamOps.ui.info "Uploaded #{cookbook.cookbook_name} (#{cookbook.version}) to: '#{conn.server_url}'"
     end
 
-    # Output a Cookbook skip message using {Dreamify.ui}
+    # Output a Cookbook skip message using {DreamOps.ui}
     #
-    # @param [Dreamify::CachedCookbook] cookbook
+    # @param [DreamOps::CachedCookbook] cookbook
     # @param [Ridley::Connection] conn
     def skipping(cookbook, conn)
-      Dreamify.ui.info "Skipping #{cookbook.cookbook_name} (#{cookbook.version}) (frozen)"
+      DreamOps.ui.info "Skipping #{cookbook.cookbook_name} (#{cookbook.version}) (frozen)"
     end
 
     # Output a list of outdated cookbooks and the most recent version
-    # using {Dreamify.ui}
+    # using {DreamOps.ui}
     #
     # @param [Hash] hash
     #   the list of outdated cookbooks in the format
     #   { 'cookbook' => { 'supermarket.chef.io' => #<Cookbook> } }
     def outdated(hash)
       if hash.empty?
-        Dreamify.ui.info("All cookbooks up to date!")
+        DreamOps.ui.info("All cookbooks up to date!")
       else
-        Dreamify.ui.info("The following cookbooks have newer versions:")
+        DreamOps.ui.info("The following cookbooks have newer versions:")
 
         hash.each do |name, info|
           info["remote"].each do |remote_source, remote_version|
@@ -74,90 +74,90 @@ module Dreamify
               out << " [#{remote_source.uri}]"
             end
 
-            Dreamify.ui.info(out)
+            DreamOps.ui.info(out)
           end
         end
       end
     end
 
-    # Output a Cookbook package message using {Dreamify.ui}
+    # Output a Cookbook package message using {DreamOps.ui}
     #
     # @param [String] destination
     def package(destination)
-      Dreamify.ui.info "Cookbook(s) packaged to #{destination}"
+      DreamOps.ui.info "Cookbook(s) packaged to #{destination}"
     end
 
-    # Output the important information about a cookbook using {Dreamify.ui}.
+    # Output the important information about a cookbook using {DreamOps.ui}.
     #
     # @param [CachedCookbook] cookbook
     def info(cookbook)
-      Dreamify.ui.info(cookbook.pretty_print)
+      DreamOps.ui.info(cookbook.pretty_print)
     end
 
-    # Output a list of cookbooks using {Dreamify.ui}
+    # Output a list of cookbooks using {DreamOps.ui}
     #
     # @param [Array<Dependency>] list
     def list(dependencies)
-      Dreamify.ui.info "Cookbooks installed by your Berksfile:"
+      DreamOps.ui.info "Cookbooks installed by your Berksfile:"
       dependencies.each do |dependency|
         out =  "  * #{dependency}"
         out << " from #{dependency.location}" if dependency.location
-        Dreamify.ui.info(out)
+        DreamOps.ui.info(out)
       end
     end
 
-    # Ouput Cookbook search results using {Dreamify.ui}
+    # Ouput Cookbook search results using {DreamOps.ui}
     #
     # @param [Array<APIClient::RemoteCookbook>] results
     def search(results)
       results.sort_by(&:name).each do |remote_cookbook|
-        Dreamify.ui.info "#{remote_cookbook.name} (#{remote_cookbook.version})"
+        DreamOps.ui.info "#{remote_cookbook.name} (#{remote_cookbook.version})"
       end
     end
 
-    # Output Cookbook path using {Dreamify.ui}
+    # Output Cookbook path using {DreamOps.ui}
     #
     # @param [CachedCookbook] cookbook
     def show(cookbook)
       path = File.expand_path(cookbook.path)
-      Dreamify.ui.info(path)
+      DreamOps.ui.info(path)
     end
 
-    # Output Cookbook vendor info message using {Dreamify.ui}
+    # Output Cookbook vendor info message using {DreamOps.ui}
     #
     # @param [CachedCookbook] cookbook
     # @param [String] destination
     def vendor(cookbook, destination)
       cookbook_destination = File.join(destination, cookbook.cookbook_name)
-      Dreamify.ui.info "Vendoring #{cookbook.cookbook_name} (#{cookbook.version}) to #{cookbook_destination}"
+      DreamOps.ui.info "Vendoring #{cookbook.cookbook_name} (#{cookbook.version}) to #{cookbook_destination}"
     end
 
-    # Output a generic message using {Dreamify.ui}
+    # Output a generic message using {DreamOps.ui}
     #
     # @param [String] message
     def msg(message)
-      Dreamify.ui.info message
+      DreamOps.ui.info message
     end
 
-    # Output an error message using {Dreamify.ui}
+    # Output an error message using {DreamOps.ui}
     #
     # @param [String] message
     def error(message)
-      Dreamify.ui.error message
+      DreamOps.ui.error message
     end
 
-    # Output a warning message using {Dreamify.ui}
+    # Output a warning message using {DreamOps.ui}
     #
     # @param [String] message
     def warn(message)
-      Dreamify.ui.warn message
+      DreamOps.ui.warn message
     end
 
     # Output a deprecation warning
     #
     # @param [String] message
     def deprecation(message)
-      Dreamify.ui.info "DEPRECATED: #{message}"
+      DreamOps.ui.info "DEPRECATED: #{message}"
     end
   end
 end

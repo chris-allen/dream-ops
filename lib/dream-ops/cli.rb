@@ -1,10 +1,10 @@
-require "dreamify"
+require "dream-ops"
 # require_relative "config"
 # require_relative "init_generator"
 # require_relative "cookbook_generator"
 # require_relative "commands/shelf"
 
-module Dreamify
+module DreamOps
   class Cli < Thor
     # This is the main entry point for the CLI. It exposes the method {#execute!} to
     # start the CLI.
@@ -22,15 +22,15 @@ module Dreamify
         $stdout = @stdout
         $stderr = @stderr
 
-        Dreamify::Cli.start(@argv)
+        DreamOps::Cli.start(@argv)
         @kernel.exit(0)
-      rescue Dreamify::DreamifyError => e
-        Dreamify.ui.error e
-        Dreamify.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
+      rescue DreamOps::DreamOpsError => e
+        DreamOps.ui.error e
+        DreamOps.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
         @kernel.exit(e.status_code)
       # rescue Ridley::Errors::RidleyError => e
-      #   Dreamify.ui.error "#{e.class} #{e}"
-      #   Dreamify.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
+      #   DreamOps.ui.error "#{e.class} #{e}"
+      #   DreamOps.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
       #   @kernel.exit(47)
       end
     end
@@ -47,7 +47,7 @@ module Dreamify
           end
         else
           super
-          Dreamify.formatter.cleanup_hook unless config[:current_command].name == "help"
+          DreamOps.formatter.cleanup_hook unless config[:current_command].name == "help"
         end
       end
     end
@@ -60,19 +60,19 @@ module Dreamify
       #     raise ConfigNotFound.new(:berkshelf, @options[:config])
       #   end
 
-      #   Dreamify.config = Dreamify::Config.from_file(@options[:config])
+      #   DreamOps.config = DreamOps::Config.from_file(@options[:config])
       # end
 
       if @options[:debug]
         ENV["BERKSHELF_DEBUG"] = "true"
-        Dreamify.logger.level = ::Logger::DEBUG
+        DreamOps.logger.level = ::Logger::DEBUG
       end
 
       if @options[:quiet]
-        Dreamify.ui.mute!
+        DreamOps.ui.mute!
       end
 
-      Dreamify.set_format @options[:format]
+      DreamOps.set_format @options[:format]
       @options = options.dup # unfreeze frozen options Hash from Thor
     end
 
@@ -86,7 +86,7 @@ module Dreamify
 
     class_option :config,
       type: :string,
-      desc: "Path to Dreamify configuration to use.",
+      desc: "Path to DreamOps configuration to use.",
       aliases: "-c",
       banner: "PATH"
     class_option :format,
@@ -108,15 +108,20 @@ module Dreamify
 
     desc "version", "Display version"
     def version
-      Dreamify.formatter.version
+      DreamOps.formatter.version
     end
 
-    desc "project", "Creates project"
-    def project
-      puts "...to be implemented at a later date =)"
+    method_option :stacks,
+      type: :array,
+      desc: "Only these stack IDs.",
+      aliases: "-s"
+    desc "deploy", "Creates deploy"
+    def deploy(type)
+      puts "type: #{type}"
+      puts "stacks: #{options[:stacks]}"
     end
 
-    # tasks["cookbook"].options = Dreamify::CookbookGenerator.class_options
+    # tasks["cookbook"].options = DreamOps::CookbookGenerator.class_options
 
     private
 
@@ -127,7 +132,7 @@ module Dreamify
       #
     def print_list(cookbooks)
       Array(cookbooks).sort.each do |cookbook|
-        Dreamify.formatter.msg "  * #{cookbook.cookbook_name} (#{cookbook.version})"
+        DreamOps.formatter.msg "  * #{cookbook.cookbook_name} (#{cookbook.version})"
       end
     end
   end

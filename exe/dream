@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
 $:.push File.expand_path("../../lib", __FILE__)
-require "dreamify/cli"
+require "dream-ops/cli"
 
-Dreamify::Cli::Runner.new(ARGV.dup).execute!
+DreamOps::Cli::Runner.new(ARGV.dup).execute!

@@ -1,6 +1,6 @@
 require "thor"
 
-module Dreamify
+module DreamOps
   # Subclass the current shell (which is different based on the OS)
   Shell = Class.new(Thor::Base.shell) do
     # Mute the output of this instance of UI until {#unmute!} is called

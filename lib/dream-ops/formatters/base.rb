@@ -1,4 +1,4 @@
-module Dreamify
+module DreamOps
   class BaseFormatter
     class << self
       #

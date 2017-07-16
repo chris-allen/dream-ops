@@ -1,8 +1,9 @@
 require "dream-ops"
-# require_relative "config"
+
 # require_relative "init_generator"
 # require_relative "cookbook_generator"
 # require_relative "commands/shelf"
+
 
 module DreamOps
   class Cli < Thor
@@ -117,8 +118,18 @@ module DreamOps
       aliases: "-s"
     desc "deploy", "Creates deploy"
     def deploy(type)
-      puts "type: #{type}"
-      puts "stacks: #{options[:stacks]}"
+      deployer = nil
+
+      args = []
+      if type == 'opsworks'
+        deployer = OpsWorksDeployer.new
+        stack_ids = options[:stacks]
+        args = [*stack_ids]
+      end
+
+      if !deployer.nil?
+        deployer.deploy(*args)
+      end
     end
 
     # tasks["cookbook"].options = DreamOps::CookbookGenerator.class_options

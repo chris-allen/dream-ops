@@ -1,5 +1,17 @@
+# XXX: work around logger spam from hashie
+# https://github.com/intridea/hashie/issues/394
+begin
+  require "hashie"
+  require "hashie/logger"
+  Hashie.logger = Logger.new(nil)
+rescue LoadError
+  # intentionally left blank
+end
 
+require "berkshelf"
 require "thor"
+
+Berkshelf.ui.mute!
 
 module DreamOps
 
@@ -12,6 +24,9 @@ module DreamOps
   autoload :HumanFormatter, "dream-ops/formatters/human"
   # autoload :JsonFormatter,  "dream-ops/formatters/json"
   # autoload :NullFormatter,  "dream-ops/formatters/null"
+
+  autoload :BaseDeployer,  "dream-ops/deployment/base"
+  autoload :OpsWorksDeployer, "dream-ops/deployment/opsworks"
 
   class << self
     # @return [DreamOps::Shell]

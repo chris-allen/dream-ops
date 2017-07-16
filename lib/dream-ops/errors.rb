@@ -11,6 +11,8 @@ module DreamOps
     alias_method :message, :to_s
   end
 
+  class FatalDeployError < DreamOpsError; set_status_code(1); end
+
   class DeprecatedError < DreamOpsError; set_status_code(10); end
   class InternalError < DreamOpsError; set_status_code(99); end
   class ArgumentError < InternalError; end

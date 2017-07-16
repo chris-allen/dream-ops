@@ -122,7 +122,7 @@ module DreamOps
             # Grab a fresh copy of the cookbook on all instances in the stack
             update_custom_cookbooks(target[:stack])
           rescue Aws::OpsWorks::Errors::ValidationException
-            DreamOps.ui.error "Stack \"#{target[:stack].name}\"] has no running instances."
+            DreamOps.ui.error "Stack \"#{target[:stack].name}\" has no running instances."
             __bail_with_fatal_error
           end
 
@@ -133,7 +133,12 @@ module DreamOps
 
       # Deploy all apps for stack
       target[:apps].each do |app|
-        deploy_app(app, target[:stack])
+        begin
+          deploy_app(app, target[:stack])
+        rescue Aws::OpsWorks::Errors::ValidationException
+          DreamOps.ui.error "Stack \"#{target[:stack].name}\" has no running instances."
+          __bail_with_fatal_error
+        end
       end
     end
 

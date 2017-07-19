@@ -11,24 +11,28 @@ end
 require "berkshelf"
 require "thor"
 
-Berkshelf.ui.mute!
-
 module DreamOps
 
   require_relative "dream-ops/version"
   require_relative "dream-ops/errors"
 
-  autoload :Shell,      "dream-ops/shell"
+  module Mixin
+    autoload :Logging,        "dream-ops/mixin/logging"
+  end
 
-  autoload :BaseFormatter,  "dream-ops/formatters/base"
-  autoload :HumanFormatter, "dream-ops/formatters/human"
-  # autoload :JsonFormatter,  "dream-ops/formatters/json"
-  # autoload :NullFormatter,  "dream-ops/formatters/null"
+  autoload :Shell,            "dream-ops/shell"
 
-  autoload :BaseDeployer,  "dream-ops/deployment/base"
+  autoload :BaseFormatter,    "dream-ops/formatters/base"
+  autoload :HumanFormatter,   "dream-ops/formatters/human"
+  # autoload :JsonFormatter,    "dream-ops/formatters/json"
+  # autoload :NullFormatter,    "dream-ops/formatters/null"
+
+  autoload :BaseDeployer,     "dream-ops/deployment/base"
   autoload :OpsWorksDeployer, "dream-ops/deployment/opsworks"
 
   class << self
+    include Mixin::Logging
+
     # @return [DreamOps::Shell]
     def ui
       @ui ||= DreamOps::Shell.new
@@ -58,3 +62,7 @@ module DreamOps
 end
 
 require_relative "dream-ops/cli"
+require_relative "dream-ops/logger"
+
+Ridley.logger          = DreamOps.logger
+DreamOps.logger.level  = Logger::WARN

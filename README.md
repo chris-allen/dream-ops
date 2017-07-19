@@ -1,8 +1,9 @@
 # DreamOps
+[![Gem Version](https://img.shields.io/gem/v/dream-ops.svg)][gem]
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/dream-ops`. To experiment with that code, run `bin/console` for an interactive prompt.
+[gem]: https://rubygems.org/gems/dream-ops
 
-TODO: Delete this and the text above, and describe your gem
+CLI for Dream projects based on the [berkshelf](https://github.com/berkshelf/berkshelf) project.
 
 ## Installation
 
@@ -22,7 +23,23 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```bash
+dream help
+```
+
+### Deploying to OpsWorks
+
+```bash
+dream deploy opsworks --stacks 08137c03-1e85-4787-b82c-cb825638cdfa
+Stack: nodeapp
+--- Cookbook: chef-nodeapp
+--- Apps: ["nodeapp"]
+...Building cookbook [chef-nodeapp]
+...Deploying cookbook [chef-nodeapp]
+...Updating custom cookbooks [stack="nodeapp"]
+...Running setup command [stack="nodeapp"]
+...Deploying [stack="nodeapp"] [app="nodeapp"]
+```
 
 ## Development
 
@@ -33,7 +50,3 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/dream-ops.
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).

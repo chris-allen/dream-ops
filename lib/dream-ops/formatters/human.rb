@@ -2,7 +2,7 @@ module DreamOps
   class HumanFormatter < BaseFormatter
     # Output the version of DreamOps
     def version
-      DreamOps.ui.info DreamOps::VERSION
+      DreamOps.ui.info "Dream Ops v#{DreamOps::VERSION}"
     end
 
     # @param [DreamOps::Dependency] dependency

@@ -20,13 +20,47 @@ module DreamOps
       end
     end
 
-    # These MUST be implemented by subclasses
+    # This method MUST be implemented by subclasses.
+    #
+    # @return [Hash]
+    #   a hash containing cookbooks that need to be built/updated
+    #   and deploy targets
+    #
+    #   Example:
+    #     {
+    #       :cookbooks => [
+    #         {
+    #           :bucket => "chef-app",
+    #           :cookbook_key => "chef-app-dev.zip",
+    #           :sha_key => "chef-app-dev_SHA.txt",
+    #           :name => "chef-app",
+    #           :path => "./chef",
+    #           :local_sha => "7bfa19491170563f422a321c144800f4435323b1",
+    #           :remote_sha => ""
+    #         }
+    #       ],
+    #       deploy_targets: [
+    #         #<Hash>,
+    #         #<Hash>
+    #       ]
+    #     }
     deployer_method :analyze
+
+    # This method MUST be implemented by subclasses.
+    #
+    # @param [Hash] cookbook
+    #   a hash containing the cookbook details
     deployer_method :deploy_cookbook
+
+
+    # This method MUST be implemented by subclasses.
+    #
+    # @param [Hash] target
+    #   a hash containing the deploy target details
     deployer_method :deploy_target
 
     # It may turn out that cookbook building will be different for different
-    # deployments, but for now all deployments build them the same way.
+    # deployments, but for now all deployments will build them the same way.
     def build_cookbook(cookbook)
       berksfile = Berkshelf::Berksfile.from_file(File.join(cookbook[:path], "Berksfile"))
       berksfile.vendor("berks-cookbooks")
@@ -69,11 +103,13 @@ module DreamOps
       deploy_threads.each do |t|
         begin
           t.join
-        rescue DreamOps::FatalDeployError
+        rescue DreamOps::DreamOpsError
+          DreamOps.ui.error "#{$!}"
           deploy_success = deploy_success && false
         end
       end
 
+      # If ANY deploy threads failed, exit with failure
       exit(1) if !deploy_success
     end
   end

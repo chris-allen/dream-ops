@@ -27,12 +27,8 @@ module DreamOps
         @kernel.exit(0)
       rescue DreamOps::DreamOpsError => e
         DreamOps.ui.error e
-        DreamOps.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
+        DreamOps.ui.error "\t" + e.backtrace.join("\n\t") if ENV["DREAMOPS_DEBUG"]
         @kernel.exit(e.status_code)
-      # rescue Ridley::Errors::RidleyError => e
-      #   DreamOps.ui.error "#{e.class} #{e}"
-      #   DreamOps.ui.error "\t" + e.backtrace.join("\n\t") if ENV["BERKSHELF_DEBUG"]
-      #   @kernel.exit(47)
       end
     end
 
@@ -56,17 +52,11 @@ module DreamOps
     def initialize(*args)
       super(*args)
 
-      # if @options[:config]
-      #   unless File.exist?(@options[:config])
-      #     raise ConfigNotFound.new(:berkshelf, @options[:config])
-      #   end
-
-      #   DreamOps.config = DreamOps::Config.from_file(@options[:config])
-      # end
-
       if @options[:debug]
-        ENV["BERKSHELF_DEBUG"] = "true"
+        ENV["DREAMOPS_DEBUG"] = "true"
         DreamOps.logger.level = ::Logger::DEBUG
+      else
+        Berkshelf.ui.mute!
       end
 
       if @options[:quiet]
@@ -77,19 +67,13 @@ module DreamOps
       @options = options.dup # unfreeze frozen options Hash from Thor
     end
 
-    namespace "berkshelf"
+    namespace "dream-ops"
 
-    map "ls"   => :list
-    map "book" => :cookbook
+    # map "ls"   => :list
     map ["ver", "-v", "--version"] => :version
 
-    default_task :install
+    default_task :version
 
-    class_option :config,
-      type: :string,
-      desc: "Path to DreamOps configuration to use.",
-      aliases: "-c",
-      banner: "PATH"
     class_option :format,
       type: :string,
       default: "human",
@@ -115,8 +99,9 @@ module DreamOps
     method_option :stacks,
       type: :array,
       desc: "Only these stack IDs.",
-      aliases: "-s"
-    desc "deploy", "Creates deploy"
+      aliases: "-s",
+      required: true
+    desc "deploy [TYPE]", "Deploys to specified targets"
     def deploy(type)
       deployer = nil
 
@@ -125,25 +110,13 @@ module DreamOps
         deployer = OpsWorksDeployer.new
         stack_ids = options[:stacks]
         args = [*stack_ids]
+      else
+        DreamOps.ui.error "Deployment of type '#{type}' is not supported"
+        exit(1)
       end
 
       if !deployer.nil?
         deployer.deploy(*args)
-      end
-    end
-
-    # tasks["cookbook"].options = DreamOps::CookbookGenerator.class_options
-
-    private
-
-      # Print a list of the given cookbooks. This is used by various
-      # methods like {list} and {contingent}.
-      #
-      # @param [Array<CachedCookbook>] cookbooks
-      #
-    def print_list(cookbooks)
-      Array(cookbooks).sort.each do |cookbook|
-        DreamOps.formatter.msg "  * #{cookbook.cookbook_name} (#{cookbook.version})"
       end
     end
   end

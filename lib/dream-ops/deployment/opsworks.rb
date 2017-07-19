@@ -6,13 +6,48 @@ Aws.use_bundled_cert!
 module DreamOps
   class OpsWorksDeployer < BaseDeployer
 
-    # Output the version of DreamOps
+    # Analyze the OpsWorks stacks for deployment
+    #
+    # @return [Hash]
+    #   a hash containing cookbooks that need to be built/updated
+    #   and deploy targets
+    #
+    #   Example:
+    #     {
+    #       :cookbooks => [
+    #         {
+    #           :bucket => "chef-app",
+    #           :cookbook_key => "chef-app-dev.zip",
+    #           :sha_key => "chef-app-dev_SHA.txt",
+    #           :name => "chef-app",
+    #           :path => "./chef",
+    #           :local_sha => "7bfa19491170563f422a321c144800f4435323b1",
+    #           :remote_sha => ""
+    #         }
+    #       ],
+    #       deploy_targets: [
+    #         {
+    #           :stack => #<Stack: name="my-stack">,
+    #           :apps => [
+    #             #<App: name="my-app"
+    #           ],
+    #           :cookbook => {
+    #             :bucket => "chef-app",
+    #             :cookbook_key => "chef-app-dev.zip",
+    #             :sha_key => "chef-app-dev_SHA.txt",
+    #             :name => "chef-app",
+    #             :path => "./chef",
+    #             :local_sha => "7bfa19491170563f422a321c144800f4435323b1",
+    #             :remote_sha => ""
+    #           }
+    #         }
+    #       ]
+    #     }
     def analyze(stack_ids)
       begin
         @opsworks = Aws::OpsWorks::Client.new
         stacks = @opsworks.describe_stacks({ stack_ids: stack_ids, }).stacks
       rescue => e
-        DreamOps.ui.error "Failed to fetch OpsWorks stacks\n"
         DreamOps.ui.error "#{$!}"
         exit(1)
       end
@@ -41,8 +76,6 @@ module DreamOps
       end
       return result
     end
-
-    ################## OpsWorks specific methods ##################
 
     # Retrieves stack apps and gets all information about remote/local cookbook
     def analyze_stack(stack)
@@ -118,13 +151,8 @@ module DreamOps
       # If this stack has a new cookbook
       if !target[:cookbook].nil?
         if __cookbook_in_array(target[:cookbook], cookbooks)
-          begin
-            # Grab a fresh copy of the cookbook on all instances in the stack
-            update_custom_cookbooks(target[:stack])
-          rescue Aws::OpsWorks::Errors::ValidationException
-            DreamOps.ui.error "Stack \"#{target[:stack].name}\" has no running instances."
-            __bail_with_fatal_error
-          end
+          # Grab a fresh copy of the cookbook on all instances in the stack
+          update_custom_cookbooks(target[:stack])
 
           # Re-run the setup step for all layers
           setup(target[:stack])
@@ -133,22 +161,27 @@ module DreamOps
 
       # Deploy all apps for stack
       target[:apps].each do |app|
-        begin
-          deploy_app(app, target[:stack])
-        rescue Aws::OpsWorks::Errors::ValidationException
-          DreamOps.ui.error "Stack \"#{target[:stack].name}\" has no running instances."
-          __bail_with_fatal_error
-        end
+        deploy_app(app, target[:stack])
       end
     end
 
     def update_custom_cookbooks(stack)
       DreamOps.ui.info "...Updating custom cookbooks [stack=\"#{stack.name}\"]"
-      response = @opsworks.create_deployment({
-        stack_id: stack.stack_id,
-        command: { name: "update_custom_cookbooks" }
-      })
-      return wait_for_deployment(response.deployment_id)
+      begin
+        response = @opsworks.create_deployment({
+          stack_id: stack.stack_id,
+          command: { name: "update_custom_cookbooks" }
+        })
+      rescue Aws::OpsWorks::Errors::ValidationException
+        bail_with_fatal_error(NoRunningInstancesError.new(stack))
+      end
+
+      status = wait_for_deployment(response.deployment_id)
+      if status != 'successful'
+        bail_with_fatal_error(OpsWorksCommandFailedError.new(
+          stack, response.deployment_id, 'update_custom_cookbooks')
+        )
+      end
     end
 
     def setup(stack)
@@ -157,17 +190,33 @@ module DreamOps
         stack_id: stack.stack_id,
         command: { name: "setup" }
       })
-      return wait_for_deployment(response.deployment_id)
+      
+      status = wait_for_deployment(response.deployment_id)
+      if status != 'successful'
+        bail_with_fatal_error(OpsWorksCommandFailedError.new(
+          stack, response.deployment_id, 'setup')
+        )
+      end
     end
 
     def deploy_app(app, stack)
       DreamOps.ui.info "...Deploying [stack=\"#{stack.name}\"] [app=\"#{app.name}\"]"
-      response = @opsworks.create_deployment({
-        stack_id: stack.stack_id,
-        app_id: app.app_id,
-        command: { name: "deploy" }
-      })
-      return wait_for_deployment(response.deployment_id)
+      begin
+        response = @opsworks.create_deployment({
+          stack_id: stack.stack_id,
+          app_id: app.app_id,
+          command: { name: "deploy" }
+        })
+      rescue Aws::OpsWorks::Errors::ValidationException
+        bail_with_fatal_error(NoRunningInstancesError.new(stack))
+      end
+
+      status = wait_for_deployment(response.deployment_id)
+      if status != 'successful'
+        bail_with_fatal_error(OpsWorksCommandFailedError.new(
+          stack, response.deployment_id, 'deploy')
+        )
+      end
     end
 
     def get_deployment_status(deployment_id)
@@ -188,8 +237,8 @@ module DreamOps
       return status
     end
 
-    def __bail_with_fatal_error
-      raise FatalDeployError
+    def bail_with_fatal_error(ex)
+      raise ex
       Thread.exit
     end
 

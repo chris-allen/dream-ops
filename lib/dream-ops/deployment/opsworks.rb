@@ -1,5 +1,6 @@
 require "aws-sdk"
 require "ridley"
+require "uri"
 
 Aws.use_bundled_cert!
 
@@ -88,7 +89,7 @@ module DreamOps
 
         # Skip this step if the stack doesn't use S3
         if source.type == 's3'
-          cookbookPath = source.url[25..-1]
+          cookbookPath = URI.parse(source.url).path[1..-1]
           firstSlash = cookbookPath.index('/')
           cookbook = {
               bucket: cookbookPath[0..(firstSlash-1)],

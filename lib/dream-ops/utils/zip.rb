@@ -43,5 +43,4 @@ class ZipFileGenerator
       end
     }
   end
-
 end

@@ -29,6 +29,9 @@ module DreamOps
 
   autoload :BaseDeployer,     "dream-ops/deployment/base"
   autoload :OpsWorksDeployer, "dream-ops/deployment/opsworks"
+  autoload :SoloDeployer,     "dream-ops/deployment/solo"
+  autoload :BaseInitializer,  "dream-ops/init/base"
+  autoload :SoloInitializer,  "dream-ops/init/solo"
 
   class << self
     include Mixin::Logging
@@ -58,11 +61,38 @@ module DreamOps
       id = name.to_s.capitalize
       @formatter = DreamOps.const_get("#{id}Formatter").new
     end
+
+    # Get path for the SSH key
+    #
+    # @return [~String]
+    def ssh_key
+      @ssh_key ||= nil
+    end
+
+    # Specify path to use for the SSH key
+    #
+    # @return [~String]
+    def set_ssh_key(key)
+      @ssh_key = key
+    end
+
+    # Get whether to always run setup
+    #
+    # @return [~boolean]
+    def force_setup
+      @force_setup ||= false
+    end
+
+    # Specify whether to always run setup
+    #
+    # @return [~boolean]
+    def set_force_setup(force)
+      @force_setup = force
+    end
   end
 end
 
 require_relative "dream-ops/cli"
 require_relative "dream-ops/logger"
 
-Ridley.logger          = DreamOps.logger
 DreamOps.logger.level  = Logger::WARN

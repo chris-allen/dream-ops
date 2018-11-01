@@ -1,5 +1,5 @@
 module DreamOps
-  class Logger < Ridley::Logging::Logger
+  class Logger < Logger
     alias_method :fatal, :error
 
     def deprecate(message)

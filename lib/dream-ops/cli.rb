@@ -64,6 +64,11 @@ module DreamOps
       end
 
       DreamOps.set_format @options[:format]
+
+      if @options[:ssh_key]
+        DreamOps.set_ssh_key @options[:ssh_key]
+      end
+
       @options = options.dup # unfreeze frozen options Hash from Thor
     end
 
@@ -90,26 +95,37 @@ module DreamOps
       desc: "Output debug information",
       aliases: "-d",
       default: false
+    class_option :ssh_key,
+      type: :string,
+      desc: "Path to SSH key",
+      aliases: "-i",
+      default: ""
 
     desc "version", "Display version"
     def version
       DreamOps.formatter.version
     end
 
-    method_option :stacks,
+    method_option :targets,
       type: :array,
-      desc: "Only these stack IDs.",
-      aliases: "-s",
+      desc: "Only these targets",
+      aliases: "-T",
       required: true
+    method_option :force_setup,
+      type: :boolean,
+      desc: "Always run setup",
+      aliases: "-f"
     desc "deploy [TYPE]", "Deploys to specified targets"
     def deploy(type)
       deployer = nil
+      DreamOps.set_force_setup options[:force_setup]
+      targets = options[:targets]
+      args = [*targets]
 
-      args = []
       if type == 'opsworks'
         deployer = OpsWorksDeployer.new
-        stack_ids = options[:stacks]
-        args = [*stack_ids]
+      elsif type == 'solo'
+        deployer = SoloDeployer.new
       else
         DreamOps.ui.error "Deployment of type '#{type}' is not supported"
         exit(1)
@@ -117,6 +133,34 @@ module DreamOps
 
       if !deployer.nil?
         deployer.deploy(*args)
+      end
+    end
+
+    method_option :targets,
+      type: :array,
+      desc: "Only these targets",
+      aliases: "-T",
+      required: true
+    method_option :dryrun,
+      type: :boolean,
+      desc: "Only print what actions will be taken",
+      aliases: "-x",
+      default: false
+    desc "init [TYPE]", "Initialize configuration on specified targets"
+    def init(type)
+      initializer = nil
+      targets = options[:targets]
+      args = [*targets]
+
+      if type == 'solo'
+        initializer = SoloInitializer.new
+      else
+        DreamOps.ui.error "Type '#{type}' is not supported"
+        exit(1)
+      end
+
+      if !initializer.nil?
+        initializer.init(*args, options[:dryrun])
       end
     end
   end

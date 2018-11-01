@@ -1,4 +1,3 @@
-require "berkshelf"
 require "dream-ops/utils/zip"
 require 'fileutils'
 
@@ -31,8 +30,8 @@ module DreamOps
     #       :cookbooks => [
     #         {
     #           :bucket => "chef-app",
-    #           :cookbook_key => "chef-app-dev.zip",
-    #           :sha_key => "chef-app-dev_SHA.txt",
+    #           :cookbook_filename => "chef-app-dev.zip",
+    #           :sha_filename => "chef-app-dev_SHA.txt",
     #           :name => "chef-app",
     #           :path => "./chef",
     #           :local_sha => "7bfa19491170563f422a321c144800f4435323b1",
@@ -59,8 +58,19 @@ module DreamOps
     #   a hash containing the deploy target details
     deployer_method :deploy_target
 
-    # It may turn out that cookbook building will be different for different
-    # deployments, but for now all deployments will build them the same way.
+    def __get_cookbook_paths()
+      # Treat any directory with a Berksfile as a cookbook
+      cookbooks = Dir.glob('./**/Berksfile')
+
+      return cookbooks.map { |path| path.gsub(/(.*)(\/Berksfile)(.*)/, '\1') }
+    end
+
+    def __bail_with_fatal_error(ex)
+      raise ex
+      Thread.exit
+    end
+
+    # Collect cookbook dependencies and compress based on file extension
     def build_cookbook(cookbook)
       berksfile = Berkshelf::Berksfile.from_file(File.join(cookbook[:path], "Berksfile"))
       berksfile.vendor("berks-cookbooks")
@@ -69,13 +79,18 @@ module DreamOps
         file.write("source \"https://supermarket.chef.io\"\n\n")
         file.write("cookbook \"#{cookbook[:name]}\", path: \"./#{cookbook[:name]}\"")
       }
-      zf = ZipFileGenerator.new("berks-cookbooks", cookbook[:cookbook_key])
-      zf.write
+
+      if cookbook[:cookbook_filename].end_with? ".zip"
+        zf = ZipFileGenerator.new("berks-cookbooks", cookbook[:cookbook_filename])
+        zf.write
+      elsif cookbook[:cookbook_filename].end_with? ".tar.gz"
+        system("tar -czvf #{cookbook[:cookbook_filename]} -C berks-cookbooks . > /dev/null 2>&1")
+      end
     end
 
     def cleanup_cookbooks(cookbooks)
       cookbooks.each do |cookbook|
-        File.delete(cookbook[:cookbook_key])
+        File.delete(cookbook[:cookbook_filename])
         FileUtils.remove_dir("berks-cookbooks")
       end
     end

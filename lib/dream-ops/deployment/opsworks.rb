@@ -1,5 +1,4 @@
 require "aws-sdk"
-require "ridley"
 require "uri"
 
 Aws.use_bundled_cert!
@@ -18,8 +17,8 @@ module DreamOps
     #       :cookbooks => [
     #         {
     #           :bucket => "chef-app",
-    #           :cookbook_key => "chef-app-dev.zip",
-    #           :sha_key => "chef-app-dev_SHA.txt",
+    #           :cookbook_filename => "chef-app-dev.zip",
+    #           :sha_filename => "chef-app-dev_SHA.txt",
     #           :name => "chef-app",
     #           :path => "./chef",
     #           :local_sha => "7bfa19491170563f422a321c144800f4435323b1",
@@ -34,8 +33,8 @@ module DreamOps
     #           ],
     #           :cookbook => {
     #             :bucket => "chef-app",
-    #             :cookbook_key => "chef-app-dev.zip",
-    #             :sha_key => "chef-app-dev_SHA.txt",
+    #             :cookbook_filename => "chef-app-dev.zip",
+    #             :sha_filename => "chef-app-dev_SHA.txt",
     #             :name => "chef-app",
     #             :path => "./chef",
     #             :local_sha => "7bfa19491170563f422a321c144800f4435323b1",
@@ -81,7 +80,6 @@ module DreamOps
     # Retrieves stack apps and gets all information about remote/local cookbook
     def analyze_stack(stack)
       cookbook = nil
-      cookbookName = nil
 
       DreamOps.ui.info "Stack: #{stack.name}"
       if !stack.custom_cookbooks_source.nil?
@@ -93,30 +91,40 @@ module DreamOps
           firstSlash = cookbookPath.index('/')
           cookbook = {
               bucket: cookbookPath[0..(firstSlash-1)],
-              cookbook_key: cookbookPath[(firstSlash+1)..-1],
-              sha_key: cookbookPath[firstSlash+1..-1].sub('.zip', '_SHA.txt')
+              cookbook_filename: cookbookPath[(firstSlash+1)..-1],
+              sha_filename: cookbookPath[firstSlash+1..-1].sub('.zip', '_SHA.txt')
           }
 
-          # Treat any directory with a Berksfile as a cookbook
-          cookbooks = Dir.glob('./**/Berksfile')
+          cookbooks = __get_cookbook_paths()
 
           # For now we only handle if we find one cookbook
           if cookbooks.length == 1
-            metadata = Ridley::Chef::Cookbook::Metadata.from_file(cookbooks[0].sub("Berksfile", "metadata.rb"))
+            path = cookbooks[0]
+            loader = Chef::Cookbook::CookbookVersionLoader.new(path)
+            loader.load_cookbooks
+            cookbook_version = loader.cookbook_version
+            metadata = cookbook_version.metadata
+
             cookbook[:name] = metadata.name
-            cookbook[:path] = cookbooks[0].sub('/Berksfile', '')
-            if cookbook[:cookbook_key].include? cookbook[:name]
+            cookbook[:path] = path
+            if cookbook[:cookbook_filename].include? cookbook[:name]
               cookbook[:local_sha] = `git log --pretty=%H -1 #{cookbook[:path]}`.chomp
 
               begin
-                obj = Aws::S3::Object.new(cookbook[:bucket], cookbook[:sha_key])
+                obj = Aws::S3::Object.new(cookbook[:bucket], cookbook[:sha_filename])
                 cookbook[:remote_sha] = obj.get.body.string
               rescue Aws::S3::Errors::NoSuchKey
-                cookbook[:remote_sha] = ''
+                cookbook[:remote_sha] = ""
               end
             else
-              DreamOps.ui.info "Stack cookbook source is '#{cookbook[:cookbook_key]}' but found '#{cookbook[:name]}' locally"
+              DreamOps.ui.warn "Stack cookbook source is '#{cookbook[:cookbook_filename]}' but found '#{cookbook[:name]}' locally"
             end
+          elsif cookbooks.length > 1
+            DreamOps.ui.warn "Found more than one cookbook at paths #{cookbooks}.  Skipping build."
+            cookbook[:name] = "???"
+          else
+            DreamOps.ui.warn "No cookbook found"
+            cookbook[:name] = "???"
           end
           DreamOps.ui.info "--- Cookbook: #{cookbook[:name]}"
         end
@@ -135,12 +143,12 @@ module DreamOps
     # Deploys cookbook to S3
     def deploy_cookbook(cookbook)
       begin
-        archiveFile = File.open(cookbook[:cookbook_key])
-        remoteCookbook = Aws::S3::Object.new(cookbook[:bucket], cookbook[:cookbook_key])
+        archiveFile = File.open(cookbook[:cookbook_filename])
+        remoteCookbook = Aws::S3::Object.new(cookbook[:bucket], cookbook[:cookbook_filename])
         response = remoteCookbook.put({ acl: "private", body: archiveFile })
         archiveFile.close
 
-        remoteSha = Aws::S3::Object.new(cookbook[:bucket], cookbook[:sha_key])
+        remoteSha = Aws::S3::Object.new(cookbook[:bucket], cookbook[:sha_filename])
         response = remoteSha.put({ acl: "private", body: cookbook[:local_sha] })
       rescue => e
         DreamOps.ui.error "#{$!}"
@@ -150,8 +158,8 @@ module DreamOps
     # 
     def deploy_target(target, cookbooks)
       # If this stack has a new cookbook
-      if !target[:cookbook].nil?
-        if __cookbook_in_array(target[:cookbook], cookbooks)
+      if !target[:cookbook].nil? || DreamOps.force_setup
+        if __cookbook_in_array(target[:cookbook], cookbooks) || DreamOps.force_setup
           # Grab a fresh copy of the cookbook on all instances in the stack
           update_custom_cookbooks(target[:stack])
 
@@ -174,12 +182,12 @@ module DreamOps
           command: { name: "update_custom_cookbooks" }
         })
       rescue Aws::OpsWorks::Errors::ValidationException
-        bail_with_fatal_error(NoRunningInstancesError.new(stack))
+        __bail_with_fatal_error(NoRunningInstancesError.new(stack))
       end
 
       status = wait_for_deployment(response.deployment_id)
       if status != 'successful'
-        bail_with_fatal_error(OpsWorksCommandFailedError.new(
+        __bail_with_fatal_error(OpsWorksCommandFailedError.new(
           stack, response.deployment_id, 'update_custom_cookbooks')
         )
       end
@@ -194,7 +202,7 @@ module DreamOps
       
       status = wait_for_deployment(response.deployment_id)
       if status != 'successful'
-        bail_with_fatal_error(OpsWorksCommandFailedError.new(
+        __bail_with_fatal_error(OpsWorksCommandFailedError.new(
           stack, response.deployment_id, 'setup')
         )
       end
@@ -209,12 +217,12 @@ module DreamOps
           command: { name: "deploy" }
         })
       rescue Aws::OpsWorks::Errors::ValidationException
-        bail_with_fatal_error(NoRunningInstancesError.new(stack))
+        __bail_with_fatal_error(NoRunningInstancesError.new(stack))
       end
 
       status = wait_for_deployment(response.deployment_id)
       if status != 'successful'
-        bail_with_fatal_error(OpsWorksCommandFailedError.new(
+        __bail_with_fatal_error(OpsWorksCommandFailedError.new(
           stack, response.deployment_id, 'deploy')
         )
       end
@@ -238,14 +246,9 @@ module DreamOps
       return status
     end
 
-    def bail_with_fatal_error(ex)
-      raise ex
-      Thread.exit
-    end
-
     def __cookbook_in_array(cb, cookbooks)
       return cookbooks.any? {|c|
-        c[:cookbook_key] == cb[:cookbook_key] and c[:bucket] == cb[:bucket]
+        c[:cookbook_filename] == cb[:cookbook_filename] and c[:bucket] == cb[:bucket]
       }
     end
   end

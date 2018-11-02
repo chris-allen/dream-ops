@@ -4,6 +4,7 @@ module DreamOps
       @ssh_opts = "-i #{DreamOps.ssh_key} -o 'StrictHostKeyChecking no'"
       @q_all = "> /dev/null 2>&1"
       @q_stdout = "> /dev/null"
+      @q_stderr = "2>/dev/null"
 
       result = []
 
@@ -21,7 +22,7 @@ module DreamOps
 
         target_result = { host: target }
 
-        target_result[:chefdk_installed] = system("ssh #{@ssh_opts} #{target} which chef #{@q_stdout}")
+        target_result[:chefdk_installed] = system("ssh #{@ssh_opts} #{target} which chef #{@q_all}")
         DreamOps.ui.info "--- ChefDK Installed: #{target_result[:chefdk_installed]}"
 
         target_result[:solo_json_exists] = system("ssh #{@ssh_opts} #{target} stat /var/chef/chef.json #{@q_all}")
@@ -48,7 +49,7 @@ module DreamOps
           DreamOps.ui.warn "...Installing ChefDK [target=\"#{target[:host]}\"]"
 
           # Get ubuntu version
-          ubuntu_ver = `ssh #{@ssh_opts} #{target[:host]} "awk 'BEGIN { FS = \\"=\\" } /DISTRIB_RELEASE/ { print \\$2 }' /etc/lsb-release"`.chomp
+          ubuntu_ver = `ssh #{@ssh_opts} #{target[:host]} "awk 'BEGIN { FS = \\"=\\" } /DISTRIB_RELEASE/ { print \\$2 }' /etc/lsb-release" #{@q_stderr}`.chomp
 
           # Download and install the package
           chefdk_url = "https://packages.chef.io/files/stable/chefdk/3.3.23/ubuntu/#{ubuntu_ver}/chefdk_3.3.23-1_amd64.deb"
@@ -72,7 +73,7 @@ module DreamOps
           DreamOps.ui.warn "...WOULD Create boilerplate #{json_path} [target=\"#{target[:host]}\"]"
         else
           DreamOps.ui.warn "...Creating boilerplate #{json_path} [target=\"#{target[:host]}\"]"
-          `ssh #{@ssh_opts} #{target[:host]} "echo '{\n  \\"run_list\\": []\n}' | sudo tee -a #{json_path}"`
+          `ssh #{@ssh_opts} #{target[:host]} "echo '{\n  \\"run_list\\": []\n}' | sudo tee -a #{json_path}" #{@q_stderr}`
         end
       end
 
@@ -92,7 +93,7 @@ module DreamOps
             '  \"run_list\": []',
             '}',
           ].join("\n")
-          `ssh #{@ssh_opts} #{target[:host]} "echo '#{role_contents}' | sudo tee -a #{setup_path}"`
+          `ssh #{@ssh_opts} #{target[:host]} "echo '#{role_contents}' | sudo tee -a #{setup_path}" #{@q_stderr}`
         end
       end
 
@@ -112,7 +113,7 @@ module DreamOps
             '  \"run_list\": []',
             '}',
           ].join("\n")
-          `ssh #{@ssh_opts} #{target[:host]} "echo '#{role_contents}' | sudo tee -a #{deploy_path}"`
+          `ssh #{@ssh_opts} #{target[:host]} "echo '#{role_contents}' | sudo tee -a #{deploy_path}" #{@q_stderr}`
         end
       end
     end

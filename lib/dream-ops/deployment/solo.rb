@@ -37,10 +37,9 @@ module DreamOps
     #       ]
     #     }
     def analyze(targets)
-      @ssh_opts = "-i #{DreamOps.ssh_key} -o 'StrictHostKeyChecking no'"
+      @ssh_opts = "-i #{DreamOps.ssh_key} -o LogLevel=ERROR -o StrictHostKeyChecking=no"
       @q_all = "> /dev/null 2>&1"
       @q_stdout = "> /dev/null"
-      @q_stderr = "2>/dev/null"
 
       # Collect and print target info
       result = { cookbooks: [], deploy_targets: [] }
@@ -99,10 +98,10 @@ module DreamOps
         cookbook[:path] = path
         cookbook[:local_sha] = `git log --pretty=%H -1 #{cookbook[:path]}`.chomp
 
-        `ssh #{@ssh_opts} #{target} sudo mkdir -p /var/chef/cookbooks #{@q_stderr}`
+        `ssh #{@ssh_opts} #{target} sudo mkdir -p /var/chef/cookbooks`
 
         if system("ssh #{@ssh_opts} #{target} stat /var/chef/#{cookbook[:sha_filename]} #{@q_all}")
-          result[:remote_sha] = `ssh #{@ssh_opts} #{target} cat /var/chef/#{cookbook[:sha_filename]} #{@q_stderr}`.chomp
+          result[:remote_sha] = `ssh #{@ssh_opts} #{target} cat /var/chef/#{cookbook[:sha_filename]}`.chomp
         else
           result[:remote_sha] = ""
         end
@@ -142,7 +141,7 @@ module DreamOps
 
     def run_chef_role(target, role)
       if !system("ssh #{@ssh_opts} #{target[:host]} stat /var/log/chef #{@q_all}")
-        `ssh #{@ssh_opts} #{target[:host]} sudo mkdir -p /var/log/chef #{@q_stderr}`
+        `ssh #{@ssh_opts} #{target[:host]} sudo mkdir -p /var/log/chef`
       end
 
       uuid = SecureRandom.uuid

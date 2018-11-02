@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- SSH options now set `LogLevel=ERROR`
+
 ## [0.4.1]
 
 ### Changed

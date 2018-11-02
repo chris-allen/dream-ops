@@ -1,10 +1,9 @@
 module DreamOps
   class SoloInitializer < BaseInitializer
     def analyze(targets)
-      @ssh_opts = "-i #{DreamOps.ssh_key} -o 'StrictHostKeyChecking no'"
+      @ssh_opts = "-i #{DreamOps.ssh_key} -o LogLevel=ERROR -o StrictHostKeyChecking=no"
       @q_all = "> /dev/null 2>&1"
       @q_stdout = "> /dev/null"
-      @q_stderr = "2>/dev/null"
 
       result = []
 
@@ -49,7 +48,7 @@ module DreamOps
           DreamOps.ui.warn "...Installing ChefDK [target=\"#{target[:host]}\"]"
 
           # Get ubuntu version
-          ubuntu_ver = `ssh #{@ssh_opts} #{target[:host]} "awk 'BEGIN { FS = \\"=\\" } /DISTRIB_RELEASE/ { print \\$2 }' /etc/lsb-release" #{@q_stderr}`.chomp
+          ubuntu_ver = `ssh #{@ssh_opts} #{target[:host]} "awk 'BEGIN { FS = \\"=\\" } /DISTRIB_RELEASE/ { print \\$2 }' /etc/lsb-release"`.chomp
 
           # Download and install the package
           chefdk_url = "https://packages.chef.io/files/stable/chefdk/3.3.23/ubuntu/#{ubuntu_ver}/chefdk_3.3.23-1_amd64.deb"
@@ -73,7 +72,7 @@ module DreamOps
           DreamOps.ui.warn "...WOULD Create boilerplate #{json_path} [target=\"#{target[:host]}\"]"
         else
           DreamOps.ui.warn "...Creating boilerplate #{json_path} [target=\"#{target[:host]}\"]"
-          `ssh #{@ssh_opts} #{target[:host]} "echo '{\n  \\"run_list\\": []\n}' | sudo tee -a #{json_path}" #{@q_stderr}`
+          `ssh #{@ssh_opts} #{target[:host]} "echo '{\n  \\"run_list\\": []\n}' | sudo tee -a #{json_path}"`
         end
       end
 
@@ -93,7 +92,7 @@ module DreamOps
             '  \"run_list\": []',
             '}',
           ].join("\n")
-          `ssh #{@ssh_opts} #{target[:host]} "echo '#{role_contents}' | sudo tee -a #{setup_path}" #{@q_stderr}`
+          `ssh #{@ssh_opts} #{target[:host]} "echo '#{role_contents}' | sudo tee -a #{setup_path}"`
         end
       end
 
@@ -113,7 +112,7 @@ module DreamOps
             '  \"run_list\": []',
             '}',
           ].join("\n")
-          `ssh #{@ssh_opts} #{target[:host]} "echo '#{role_contents}' | sudo tee -a #{deploy_path}" #{@q_stderr}`
+          `ssh #{@ssh_opts} #{target[:host]} "echo '#{role_contents}' | sudo tee -a #{deploy_path}"`
         end
       end
     end

@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-### Fixes
+## [0.4.1]
+
+### Changed
 - Silences stderr for _all_ ssh commands
 
 ## [0.4.0]
@@ -42,7 +44,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Gem version badge to README
 - Usage documentation
 
-[Unreleased]: https://github.com/chris-allen/dream-ops/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/chris-allen/dream-ops/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/chris-allen/dream-ops/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/chris-allen/dream-ops/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/chris-allen/dream-ops/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/chris-allen/dream-ops/compare/v0.1.0...v0.2.0

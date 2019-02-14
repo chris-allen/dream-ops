@@ -155,15 +155,7 @@ module DreamOps
       end
     end
 
-    # Deploy latest code
     def deploy_target(target, cookbooks)
-      # Sync code to home directory
-      repo_path = `git rev-parse --show-toplevel`.chomp
-      repo_name = `basename #{repo_path}`.chomp
-      DreamOps.ui.info "...Syncing [repo=\"#{repo_name}\" target=\"#{target[:host]}\"]"
-      `rsync -r -e "ssh #{@ssh_opts}" . #{target[:host]}:~/#{repo_name}`
-
-
       # Bail if ChefDK is not installed
       if !system("ssh #{@ssh_opts} #{target[:host]} which chef #{@q_all}")
         __bail_with_fatal_error(ChefDKNotInstalledError.new(target[:host]))

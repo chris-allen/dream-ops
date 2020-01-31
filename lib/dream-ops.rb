@@ -10,6 +10,8 @@ end
 
 require "berkshelf"
 require "thor"
+require "aws-sdk"
+require "inifile"
 
 module DreamOps
 
@@ -74,6 +76,29 @@ module DreamOps
     # @return [~String]
     def set_ssh_key(key)
       @ssh_key = key
+    end
+
+    # Specify AWS profile to use
+    def use_aws_profile(profile)
+      begin
+        shared_creds = Aws::SharedCredentials.new(profile_name: profile)
+        Aws.config.update(credentials: shared_creds)
+      rescue Aws::Errors::NoSuchProfileError => error
+        DreamOps.ui.error error
+        exit(1)
+      end
+
+      # Unfortunately, Aws::OpsWorks::Client only loads the default profile's
+      # region. This parses the INI files and honors the profile region if set.
+      ini = IniFile.load("#{ENV['HOME']}/.aws/config")
+      if ini.nil? || !ini.has_section(profile)
+        ini = IniFile.load("#{ENV['HOME']}/.aws/credentials")
+      end
+
+      region = ini.to_h[profile]['region']
+      if !region.nil? && !region.empty?
+        Aws.config.update(region: region)
+      end
     end
 
     # Get whether to always run setup

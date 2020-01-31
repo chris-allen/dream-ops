@@ -36,6 +36,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rubyzip",   "~> 1.2"
   spec.add_dependency "aws-sdk",   "~> 2"
+  spec.add_dependency "inifile",   "~> 3.0"
   spec.add_dependency "berkshelf", "~> 7.0"
   spec.add_dependency "thor",      "~> 0.20"
   spec.add_dependency "chef",      "~> 13.6"

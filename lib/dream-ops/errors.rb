@@ -148,4 +148,12 @@ module DreamOps
       ].join("\n")
     end
   end
+
+  class GitNotInstalledError < DreamOpsError
+    set_status_code(19)
+
+    def to_s
+      "Unabled to find git in your PATH."
+    end
+  end
 end

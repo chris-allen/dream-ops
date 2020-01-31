@@ -96,6 +96,11 @@ module DreamOps
     end
 
     def deploy(*args)
+      # Ensure git is installed
+      if (!system("which git > /dev/null 2>&1"))
+        __bail_with_fatal_error(GitNotInstalledError.new)
+      end
+
       # Find unique cookbooks and deploy targets
       result = analyze(args)
 

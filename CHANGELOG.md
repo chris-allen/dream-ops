@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixes
+- Now using thread-safe enum to avoid `FiberError`
+
 ## [0.6.0]
 
 ### Added

@@ -3,6 +3,15 @@ require 'fileutils'
 
 module DreamOps
   class BaseDeployer
+    @@spinner = Enumerator.new do |e|
+      loop do
+        e.yield '|'
+        e.yield '/'
+        e.yield '-'
+        e.yield '\\'
+      end
+    end
+
     class << self
       #
       # @macro deployer_method

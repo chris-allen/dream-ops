@@ -1,4 +1,5 @@
 require 'securerandom'
+require 'timeout'
 
 module DreamOps
   class SoloDeployer < BaseDeployer
@@ -8,6 +9,20 @@ module DreamOps
 
     def __cookbook_was_updated(target, cookbooks)
       return cookbooks.any? {|c| c[:targets].include? target }
+    end
+
+    def __wait_for_pid(pid)
+      while true do
+        begin
+          Timeout.timeout(5) do
+            Process.wait pid
+          end
+          print "\b"
+          return $?.exitstatus == 0
+        rescue Timeout::Error
+          print "\r#{@@spinner.next}"
+        end
+      end
     end
 
     # Analyze the SSH hosts for deployment
@@ -146,11 +161,18 @@ module DreamOps
 
       uuid = SecureRandom.uuid
 
-      if ! system(
-        "ssh #{@ssh_opts} #{target[:host]} \"" +
-          "set -o pipefail && " +
-          "sudo chef-solo -j /var/chef/chef.json -o \"role[#{role}]\" 2>&1 | sudo tee /var/log/chef/#{uuid}.log #{@q_all}\""
-      )
+      pid = fork do
+        if ! system(
+          "ssh #{@ssh_opts} #{target[:host]} \"" +
+            "set -o pipefail && " +
+            "sudo chef-solo -j /var/chef/chef.json -o \"role[#{role}]\" 2>&1 | sudo tee /var/log/chef/#{uuid}.log #{@q_all}\""
+        )
+          exit 1
+        end
+        exit 0
+      end
+
+      if !__wait_for_pid(pid)
         __bail_with_fatal_error(ChefSoloFailedError.new(target[:host], "/var/log/chef/#{uuid}.log"))
       end
     end

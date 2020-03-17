@@ -65,8 +65,12 @@ module DreamOps
 
       DreamOps.set_format @options[:format]
 
-      if @options[:ssh_key]
+      if !@options[:ssh_key].empty?
         DreamOps.set_ssh_key @options[:ssh_key]
+      end
+
+      if !@options[:aws_profile].empty?
+        DreamOps.use_aws_profile @options[:aws_profile]
       end
 
       @options = options.dup # unfreeze frozen options Hash from Thor
@@ -99,6 +103,11 @@ module DreamOps
       type: :string,
       desc: "Path to SSH key",
       aliases: "-i",
+      default: ""
+    class_option :aws_profile,
+      type: :string,
+      desc: "AWS profile to use",
+      aliases: "-p",
       default: ""
 
     desc "version", "Display version"

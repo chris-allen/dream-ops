@@ -33,11 +33,12 @@ Commands:
   dream version                                    # Display version
 
 Options:
-  -F, [--format=FORMAT]        # Output format to use.
-                               # Default: human
-  -q, [--quiet], [--no-quiet]  # Silence all informational output.
-  -d, [--debug], [--no-debug]  # Output debug information
-  -i, [--ssh-key=SSH_KEY]      # Path to SSH key
+  -F, [--format=FORMAT]            # Output format to use.
+                                   # Default: human
+  -q, [--quiet], [--no-quiet]      # Silence all informational output.
+  -d, [--debug], [--no-debug]      # Output debug information
+  -i, [--ssh-key=SSH_KEY]          # Path to SSH key
+  -p, [--aws-profile=AWS_PROFILE]  # AWS profile to use
 
 ```
 

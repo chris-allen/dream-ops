@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Added global `aws_profile` option
+- Added spinner to all deployments to avoid CI hangs
 
 ## [0.5.0]
 

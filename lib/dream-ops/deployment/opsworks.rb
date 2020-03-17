@@ -240,8 +240,12 @@ module DreamOps
       status = "failed"
       while true
         status = get_deployment_status(deployment_id)
-        break if ["successful", "failed"].include? status
+        if ["successful", "failed"].include? status
+          print "\b"
+          break
+        end
         sleep(2)
+        print "\r#{@@spinner.next}"
       end
       return status
     end

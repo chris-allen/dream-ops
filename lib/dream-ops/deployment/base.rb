@@ -1,14 +1,16 @@
-require "dream-ops/utils/zip"
+require 'dream-ops/utils/zip'
+require 'dream-ops/utils/threaded_enum'
 require 'fileutils'
 
 module DreamOps
   class BaseDeployer
-    @@spinner = Enumerator.new do |e|
+
+    @@spinner = ThreadedEnum.new do |e|
       loop do
-        e.yield '|'
-        e.yield '/'
-        e.yield '-'
-        e.yield '\\'
+        e << '|'
+        e << '/'
+        e << '-'
+        e << '\\'
       end
     end
 

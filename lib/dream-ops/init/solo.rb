@@ -22,7 +22,7 @@ module DreamOps
         target_result = { host: target }
 
         target_result[:chefdk_installed] = system("ssh #{@ssh_opts} #{target} which chef #{@q_all}")
-        DreamOps.ui.info "--- ChefDK Installed: #{target_result[:chefdk_installed]}"
+        DreamOps.ui.info "--- Chef Workstation Installed: #{target_result[:chefdk_installed]}"
 
         target_result[:solo_json_exists] = system("ssh #{@ssh_opts} #{target} stat /var/chef/chef.json #{@q_all}")
         DreamOps.ui.info "--- Valid chef.json: #{target_result[:solo_json_exists]}"
@@ -40,23 +40,25 @@ module DreamOps
     end
 
     def init_target(target, dryrun)
-      # Install ChefDK if not already
+      # Install ChefWorkstation if not already
       if !target[:chefdk_installed]
         if dryrun
-          DreamOps.ui.warn "...WOULD Install ChefDK [target=\"#{target[:host]}\"]"
+          DreamOps.ui.warn "...WOULD Install Chef Workstation [target=\"#{target[:host]}\"]"
         else
-          DreamOps.ui.warn "...Installing ChefDK [target=\"#{target[:host]}\"]"
+          DreamOps.ui.warn "...Installing Chef Workstation [target=\"#{target[:host]}\"]"
 
           # Get ubuntu version
           ubuntu_ver = `ssh #{@ssh_opts} #{target[:host]} "awk 'BEGIN { FS = \\"=\\" } /DISTRIB_RELEASE/ { print \\$2 }' /etc/lsb-release"`.chomp
 
           # Download and install the package
-          chefdk_url = "https://packages.chef.io/files/stable/chefdk/3.3.23/ubuntu/#{ubuntu_ver}/chefdk_3.3.23-1_amd64.deb"
-          if system("ssh #{@ssh_opts} #{target[:host]} \"wget #{chefdk_url} -P /tmp\" #{@q_all}")
-            `ssh #{@ssh_opts} #{target[:host]} "sudo dpkg -i /tmp/chefdk_3.3.23-1_amd64.deb" #{@q_all}`
-            `ssh #{@ssh_opts} #{target[:host]} "sudo rm /tmp/chefdk_3.3.23-1_amd64.deb" #{@q_all}`
+          deb_file = "chef-workstation_20.12.187-1_amd64.deb"
+          chefworkstation_url = "https://packages.chef.io/files/stable/chef-workstation/20.12.187/ubuntu/#{ubuntu_ver}/#{deb_file}"
+          if system("ssh #{@ssh_opts} #{target[:host]} \"wget #{chefworkstation_url} -P /tmp\" #{@q_all}")
+            `ssh #{@ssh_opts} #{target[:host]} "sudo dpkg -i /tmp/#{deb_file}" #{@q_all}`
+            `ssh #{@ssh_opts} #{target[:host]} "sudo rm /tmp/#{deb_file}" #{@q_all}`
+            `ssh #{@ssh_opts} #{target[:host]} "chef env --chef-license accept" #{@q_all}`
           else
-            __bail_with_fatal_error(ChefDKFailedError.new(target, chefdk_url))
+            __bail_with_fatal_error(ChefWorkstationFailedError.new(target, chefworkstation_url))
           end
         end
       end

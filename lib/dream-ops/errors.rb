@@ -66,7 +66,7 @@ module DreamOps
     end
   end
 
-  class ChefDKNotInstalledError < DreamOpsError
+  class ChefWorkstationNotInstalledError < DreamOpsError
     set_status_code(14)
 
     def initialize(target)
@@ -75,14 +75,14 @@ module DreamOps
 
     def to_s
       [
-        "ChefDK not installed on target \"#{@target}\". To initialize chef-solo, run:",
+        "Chef Workstation not installed on target \"#{@target}\". To initialize chef-solo, run:",
         "",
         "dream init solo -t #{@target} -i #{DreamOps.ssh_key}",
       ].join("\n")
     end
   end
 
-  class ChefDKFailedError < DreamOpsError
+  class ChefWorkstationFailedError < DreamOpsError
     set_status_code(15)
 
     def initialize(target, wget_url)
@@ -92,7 +92,7 @@ module DreamOps
 
     def to_s
       [
-        "Target \"#{@target}\" failed installing ChefDK from:",
+        "Target \"#{@target}\" failed installing ChefWorkstation from:",
         "",
         @wget_url,
       ].join("\n")

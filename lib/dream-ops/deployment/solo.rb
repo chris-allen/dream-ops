@@ -165,7 +165,7 @@ module DreamOps
         if ! system(
           "ssh #{@ssh_opts} #{target[:host]} \"" +
             "set -o pipefail && " +
-            "sudo chef-solo -j /var/chef/chef.json -o \"role[#{role}]\" 2>&1 | sudo tee /var/log/chef/#{uuid}.log #{@q_all}\""
+            "sudo chef-solo --chef-license accept -j /var/chef/chef.json -o \"role[#{role}]\" 2>&1 | sudo tee /var/log/chef/#{uuid}.log #{@q_all}\""
         )
           exit 1
         end
@@ -178,9 +178,9 @@ module DreamOps
     end
 
     def deploy_target(target, cookbooks)
-      # Bail if ChefDK is not installed
+      # Bail if Chef Workstation is not installed
       if !system("ssh #{@ssh_opts} #{target[:host]} which chef #{@q_all}")
-        __bail_with_fatal_error(ChefDKNotInstalledError.new(target[:host]))
+        __bail_with_fatal_error(ChefWorkstationNotInstalledError.new(target[:host]))
       end
 
       # Bail if chef.json doesn't exist

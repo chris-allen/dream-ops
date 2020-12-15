@@ -1,4 +1,5 @@
-require "aws-sdk"
+require "aws-sdk-opsworks"
+require "aws-sdk-s3"
 require "uri"
 
 Aws.use_bundled_cert!

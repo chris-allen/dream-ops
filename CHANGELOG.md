@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Updated to use Chef Workstation instead of ChefDK
+
+### Fixes
+- Adds `solo` support for Ubuntu 20.04
+
 ## [0.6.1]
 
 ### Fixes

@@ -10,7 +10,8 @@ end
 
 require "berkshelf"
 require "thor"
-require "aws-sdk"
+require "aws-sdk-core"
+require "aws-sdk-configservice"
 require "inifile"
 
 module DreamOps

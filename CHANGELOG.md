@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixes
+- Better error handling of missing SSH key for `solo` commands
+
 ## [0.7.0]
 
 ### Changed

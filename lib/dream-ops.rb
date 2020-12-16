@@ -69,7 +69,7 @@ module DreamOps
     #
     # @return [~String]
     def ssh_key
-      @ssh_key ||= nil
+      @ssh_key ||= ''
     end
 
     # Specify path to use for the SSH key

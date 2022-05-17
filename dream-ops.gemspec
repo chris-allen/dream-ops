@@ -41,6 +41,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "aws-sdk-s3",            "~> 1"
   spec.add_dependency "inifile",               "~> 3.0"
   spec.add_dependency "berkshelf",             "~> 7.0"
-  spec.add_dependency "thor",                  "~> 0.20"
+  spec.add_dependency "thor",                  "~> 1.0"
   spec.add_dependency "chef",                  "~> 13.6"
 end

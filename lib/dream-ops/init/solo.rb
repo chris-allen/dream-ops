@@ -21,8 +21,8 @@ module DreamOps
 
         target_result = { host: target }
 
-        target_result[:chefdk_installed] = system("ssh #{@ssh_opts} #{target} which chef #{@q_all}")
-        DreamOps.ui.info "--- Chef Workstation Installed: #{target_result[:chefdk_installed]}"
+        target_result[:solo_installed] = system("ssh #{@ssh_opts} #{target} which chef-solo #{@q_all}")
+        DreamOps.ui.info "--- Is chef-solo Installed: #{target_result[:solo_installed]}"
 
         target_result[:solo_json_exists] = system("ssh #{@ssh_opts} #{target} stat /var/chef/chef.json #{@q_all}")
         DreamOps.ui.info "--- Valid chef.json: #{target_result[:solo_json_exists]}"
@@ -40,32 +40,37 @@ module DreamOps
     end
 
     def init_target(target, dryrun)
-      # Install ChefWorkstation if not already
-      if !target[:chefdk_installed]
+      # Install chef-solo if not available
+      if !target[:solo_installed]
         if dryrun
-          DreamOps.ui.warn "...WOULD Install Chef Workstation [target=\"#{target[:host]}\"]"
+          DreamOps.ui.warn "...WOULD Install chef-solo via CINC [target=\"#{target[:host]}\"]"
         else
-          DreamOps.ui.warn "...Installing Chef Workstation [target=\"#{target[:host]}\"]"
+          DreamOps.ui.warn "...Installing chef-solo via CINC [target=\"#{target[:host]}\"]"
 
-          # Install GPG key
-          gpg_key_url = "https://packages.chef.io/chef.asc"
-          gpg_key_path = "/usr/share/keyrings/chef-archive-keyring.gpg"
-          `ssh #{@ssh_opts} #{target[:host]} "curl -sL #{gpg_key_url} | gpg --dearmor | sudo tee #{gpg_key_path} #{@q_all}"`
+          # Get ubuntu version
+          ubuntu_ver = `ssh #{@ssh_opts} #{target[:host]} "awk 'BEGIN { FS = \\"=\\" } /DISTRIB_RELEASE/ { print \\$2 }' /etc/lsb-release"`.chomp
 
-          # Add apt repo
-          `ssh #{@ssh_opts} #{target[:host]} "echo \"deb [signed-by=#{gpg_key_path}] https://packages.chef.io/repos/apt/stable focal main\" > /tmp/chef-stable.list" #{@q_all}`
-          `ssh #{@ssh_opts} #{target[:host]} "sudo mv /tmp/chef-stable.list /etc/apt/sources.list.d/" #{@q_all}`
-          `ssh #{@ssh_opts} #{target[:host]} "sudo apt update" #{@q_all}`
-
-          # Install the package
-          if !system("ssh #{@ssh_opts} #{target[:host]} \"sudo apt install -y -q chef-workstation\" #{@q_all}")
-            __bail_with_fatal_error(ChefWorkstationFailedError.new(target, gpg_key_url))
+          # Download and install the package
+          deb_file = "cinc_17.10.0-1_amd64.deb"
+          cinc_url = "http://downloads.cinc.sh/files/stable/cinc/17.10.0/ubuntu/#{ubuntu_ver}/#{deb_file}"
+          if system("ssh #{@ssh_opts} #{target[:host]} \"wget #{cinc_url} -P /tmp\" #{@q_all}")
+            `ssh #{@ssh_opts} #{target[:host]} "sudo dpkg -i /tmp/#{deb_file}" #{@q_all}`
+            `ssh #{@ssh_opts} #{target[:host]} "sudo rm /tmp/#{deb_file}" #{@q_all}`
+          else
+            __bail_with_fatal_error(ChefSoloFailedError.new(target, cinc_url))
           end
         end
       end
 
       if !dryrun
+        `ssh #{@ssh_opts} #{target[:host]} sudo mkdir -p /var/chef/cookbooks`
         `ssh #{@ssh_opts} #{target[:host]} sudo mkdir -p /var/chef/roles`
+
+        if system("ssh #{@ssh_opts} #{target[:host]} which cinc-solo #{@q_all}")
+          `ssh #{@ssh_opts} #{target[:host]} sudo mkdir /var/cinc`
+          `ssh #{@ssh_opts} #{target[:host]} sudo ln -s /var/chef/cookbooks /var/cinc/cookbooks`
+          `ssh #{@ssh_opts} #{target[:host]} sudo ln -s /var/chef/roles /var/cinc/roles`
+        end
       end
 
       # Create empty json file for chef-solo

@@ -74,11 +74,11 @@ Target: ip-172-31-53-232
 ```bash
 dream init solo -T ubuntu@example.com -i /path/to/key.pem
 Target: ip-172-31-53-232
---- Chef Workstation Installed: false
+--- Is chef-solo Installed: false
 --- Valid chef.json: false
 --- Valid role[setup]: false
 --- Valid role[deploy]: false
-...Installing Chef Workstation [target="ubuntu@example.com"]
+...Installing chef-solo via CINC [target="ubuntu@example.com"]
 ...Creating boilerplate /var/chef/chef.json [target="ubuntu@example.com"]
 ...Creating boilerplate /var/chef/roles/setup.json [target="ubuntu@example.com"]
 ...Creating boilerplate /var/chef/roles/deploy.json [target="ubuntu@example.com"]

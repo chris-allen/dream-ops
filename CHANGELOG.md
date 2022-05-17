@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Changed
+- Updated to use CINC instead of Chef Workstation
 - Updated to `thor@1.x` which removes warnings when using ruby 3.x
 
 ### Fixes

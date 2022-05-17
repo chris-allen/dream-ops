@@ -110,6 +110,10 @@ module DreamOps
       aliases: "-p",
       default: ""
 
+    def self.exit_on_failure?
+      true
+    end
+
     desc "version", "Display version"
     def version
       DreamOps.formatter.version

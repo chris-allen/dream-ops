@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Updated to `thor@1.x` which removes warnings when using ruby 3.x
+
 ### Fixes
+- Adds `solo` support for Ubuntu 22.04
 - Better error handling of missing SSH key for `solo` commands
 
 ## [0.7.0]

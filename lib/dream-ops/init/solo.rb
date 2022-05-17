@@ -47,18 +47,19 @@ module DreamOps
         else
           DreamOps.ui.warn "...Installing Chef Workstation [target=\"#{target[:host]}\"]"
 
-          # Get ubuntu version
-          ubuntu_ver = `ssh #{@ssh_opts} #{target[:host]} "awk 'BEGIN { FS = \\"=\\" } /DISTRIB_RELEASE/ { print \\$2 }' /etc/lsb-release"`.chomp
+          # Install GPG key
+          gpg_key_url = "https://packages.chef.io/chef.asc"
+          gpg_key_path = "/usr/share/keyrings/chef-archive-keyring.gpg"
+          `ssh #{@ssh_opts} #{target[:host]} "curl -sL #{gpg_key_url} | gpg --dearmor | sudo tee #{gpg_key_path} #{@q_all}"`
 
-          # Download and install the package
-          deb_file = "chef-workstation_20.12.187-1_amd64.deb"
-          chefworkstation_url = "https://packages.chef.io/files/stable/chef-workstation/20.12.187/ubuntu/#{ubuntu_ver}/#{deb_file}"
-          if system("ssh #{@ssh_opts} #{target[:host]} \"wget #{chefworkstation_url} -P /tmp\" #{@q_all}")
-            `ssh #{@ssh_opts} #{target[:host]} "sudo dpkg -i /tmp/#{deb_file}" #{@q_all}`
-            `ssh #{@ssh_opts} #{target[:host]} "sudo rm /tmp/#{deb_file}" #{@q_all}`
-            `ssh #{@ssh_opts} #{target[:host]} "chef env --chef-license accept" #{@q_all}`
-          else
-            __bail_with_fatal_error(ChefWorkstationFailedError.new(target, chefworkstation_url))
+          # Add apt repo
+          `ssh #{@ssh_opts} #{target[:host]} "echo \"deb [signed-by=#{gpg_key_path}] https://packages.chef.io/repos/apt/stable focal main\" > /tmp/chef-stable.list" #{@q_all}`
+          `ssh #{@ssh_opts} #{target[:host]} "sudo mv /tmp/chef-stable.list /etc/apt/sources.list.d/" #{@q_all}`
+          `ssh #{@ssh_opts} #{target[:host]} "sudo apt update" #{@q_all}`
+
+          # Install the package
+          if !system("ssh #{@ssh_opts} #{target[:host]} \"sudo apt install -y -q chef-workstation\" #{@q_all}")
+            __bail_with_fatal_error(ChefWorkstationFailedError.new(target, gpg_key_url))
           end
         end
       end

@@ -66,7 +66,7 @@ module DreamOps
     end
   end
 
-  class ChefWorkstationNotInstalledError < DreamOpsError
+  class ChefSoloNotInstalledError < DreamOpsError
     set_status_code(14)
 
     def initialize(target)
@@ -75,14 +75,14 @@ module DreamOps
 
     def to_s
       [
-        "Chef Workstation not installed on target \"#{@target}\". To initialize chef-solo, run:",
+        "chef-solo not installed on target \"#{@target}\". To initialize chef-solo, run:",
         "",
         "dream init solo -t #{@target} -i #{DreamOps.ssh_key}",
       ].join("\n")
     end
   end
 
-  class ChefWorkstationFailedError < DreamOpsError
+  class ChefSoloFailedError < DreamOpsError
     set_status_code(15)
 
     def initialize(target, wget_url)
@@ -92,7 +92,7 @@ module DreamOps
 
     def to_s
       [
-        "Target \"#{@target}\" failed installing ChefWorkstation from:",
+        "Target \"#{@target}\" failed installing chef-solo via CINC from:",
         "",
         @wget_url,
       ].join("\n")

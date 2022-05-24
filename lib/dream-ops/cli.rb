@@ -55,7 +55,9 @@ module DreamOps
       if @options[:debug]
         ENV["DREAMOPS_DEBUG"] = "true"
         DreamOps.logger.level = ::Logger::DEBUG
+        Thread.report_on_exception = true
       else
+        Thread.report_on_exception = false
         Berkshelf.ui.mute!
       end
 
@@ -111,7 +113,7 @@ module DreamOps
       default: ""
 
     def self.exit_on_failure?
-      true
+      false
     end
 
     desc "version", "Display version"

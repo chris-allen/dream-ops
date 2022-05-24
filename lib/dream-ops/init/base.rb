@@ -25,7 +25,7 @@ module DreamOps
     #     [
     #       {
     #         :host => "ubuntu@example.com"
-    #         :chefdk_installed => false,
+    #         :solo_installed => false,
     #         :solo_json_exists => false,
     #         :setup_role_exists => true,
     #         :deploy_role_exists => true

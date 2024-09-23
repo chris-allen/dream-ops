@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.8.1]
+
+### Fixed
+- Resolved issue with `archive-tar-minitar`
+
+### Changed
+- Now tracking `Gemfile.lock` in version control
+- Switched from travis-ci to github actions
+
 ## [0.8.0]
 
 ### Changed
@@ -83,7 +92,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Gem version badge to README
 - Usage documentation
 
-[Unreleased]: https://github.com/chris-allen/dream-ops/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/chris-allen/dream-ops/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/chris-allen/dream-ops/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/chris-allen/dream-ops/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/chris-allen/dream-ops/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/chris-allen/dream-ops/compare/v0.6.0...v0.6.1

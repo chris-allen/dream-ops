@@ -1,6 +1,6 @@
 # DreamOps
 [![Gem Version](https://img.shields.io/gem/v/dream-ops.svg)][gem]
-[![Build Status](https://travis-ci.com/chris-allen/dream-ops.svg?branch=master)](https://app.travis-ci.com/github/chris-allen/dream-ops)
+[![Build Status](https://travis-ci.com/chris-allen/dream-ops.svg?branch=main)](https://app.travis-ci.com/github/chris-allen/dream-ops)
 
 [gem]: https://rubygems.org/gems/dream-ops
 
@@ -92,7 +92,7 @@ To install this gem onto your local machine, run `bundle exec rake install`.
 
 
 ## Release
-### switch to `master` branch:
+### switch to `main` branch:
 - Change package version in `version.rb` according to release changes (`major|minor|patch`).
 - Update `CHANGELOG.md`:
   - Rename `[Unreleased]` section to reflect new release version and release date, same format as for all previous releases

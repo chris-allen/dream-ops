@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
   spec.metadata      = {
     "source_code_uri" => "https://github.com/chris-allen/dream-ops",
-    "changelog_uri"   => "https://github.com/chris-allen/dream-ops/blob/master/CHANGELOG.md"
+    "changelog_uri"   => "https://github.com/chris-allen/dream-ops/blob/main/CHANGELOG.md"
   }
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|

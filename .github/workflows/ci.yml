@@ -1,0 +1,29 @@
+name: Static Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [3.1, 3.2, 3.3]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+        ruby-version: ${{ matrix.ruby }}
+    - run: bundle exec rake spec
+      if: always()
+    - run: bundle exec rake features
+      if: always()
+    - run: bundle exec rake style
+      if: always()

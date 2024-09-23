@@ -1,6 +1,6 @@
 # DreamOps
 [![Gem Version](https://img.shields.io/gem/v/dream-ops.svg)][gem]
-[![Build Status](https://travis-ci.com/chris-allen/dream-ops.svg?branch=main)](https://app.travis-ci.com/github/chris-allen/dream-ops)
+![Build Status](https://github.com/chris-allen/dream-ops/actions/workflows/ci.yml/badge.svg)
 
 [gem]: https://rubygems.org/gems/dream-ops
 

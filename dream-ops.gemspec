@@ -36,6 +36,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rubyzip",               "~> 1.2"
   spec.add_dependency "archive-tar-minitar"
+  spec.add_dependency "nokogiri"
   spec.add_dependency "aws-sdk-core"
   spec.add_dependency "aws-sdk-configservice", "~> 1"
   spec.add_dependency "aws-sdk-opsworks",      "~> 1"

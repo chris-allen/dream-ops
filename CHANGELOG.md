@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.9.0]
+
 ### Changed
 - Updated minimum Ruby version requirement from 2.3.1 to 3.4.0
 - Updated `berkshelf` from ~> 7.0 to ~> 8.1
@@ -100,7 +102,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Gem version badge to README
 - Usage documentation
 
-[Unreleased]: https://github.com/chris-allen/dream-ops/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/chris-allen/dream-ops/compare/v0.9.0...HEAD
+[0.8.1]: https://github.com/chris-allen/dream-ops/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/chris-allen/dream-ops/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/chris-allen/dream-ops/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/chris-allen/dream-ops/compare/v0.6.1...v0.7.0

@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = DreamOps::VERSION
   spec.authors       = ["Chris Allen"]
   spec.email         = ["chris@apaxsoftware.com"]
-  spec.required_ruby_version     = ">= 2.3.1"
+  spec.required_ruby_version     = ">= 3.4.0"
   spec.required_rubygems_version = ">= 2.0.0"
 
   spec.summary       = "CLI for automating the deployment of application cookbooks"
@@ -32,9 +32,9 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rake", "~> 13.0"
 
-  spec.add_dependency "rubyzip",               "~> 1.2"
+  spec.add_dependency "rubyzip",               "~> 2.0"
   spec.add_dependency "archive-tar-minitar"
   spec.add_dependency "nokogiri"
   spec.add_dependency "aws-sdk-core"
@@ -42,7 +42,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "aws-sdk-opsworks",      "~> 1"
   spec.add_dependency "aws-sdk-s3",            "~> 1"
   spec.add_dependency "inifile",               "~> 3.0"
-  spec.add_dependency "berkshelf",             "~> 7.0"
+  spec.add_dependency "berkshelf",             "~> 8.1"
   spec.add_dependency "thor",                  "~> 1.0"
-  spec.add_dependency "chef",                  "~> 13.6"
+  spec.add_dependency "chef",                  "~> 18.8"
 end

@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Updated minimum Ruby version requirement from 2.3.1 to 3.4.0
+- Updated `berkshelf` from ~> 7.0 to ~> 8.1
+- Updated `chef` from ~> 13.6 to ~> 18.8
+
+### Added
+- Added `.ruby-version` file to specify Ruby 3.4.0
+
 ## [0.8.1]
 
 ### Fixed

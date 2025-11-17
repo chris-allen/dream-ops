@@ -103,7 +103,7 @@ module DreamOps
       if cookbooks.length == 1
         path = cookbooks[0]
         loader = Chef::Cookbook::CookbookVersionLoader.new(path)
-        loader.load_cookbooks
+        loader.load!
         cookbook_version = loader.cookbook_version
         metadata = cookbook_version.metadata
 
